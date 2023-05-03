@@ -1,7 +1,8 @@
 import telebot
+import config
 from telebot import types
 
-bot = telebot.TeleBot('6238189255:AAH0eCuzqk8ppdloSNnKrctbOLvsOKBVoLs')
+bot = telebot.TeleBot(config.TOKEN)
 
 tmp = open('texts/meeting.txt', 'r', encoding='utf-8')
 
@@ -119,7 +120,7 @@ def fourth_question(message):
 
         bot.send_message(chat_id, f'{len(answers)}/50: Оцените, насколько получившийся образ оказался четким и ярким:',
                          reply_markup=fou_markup)
-        if len(answers) >= 5:  # >= 50
+        if len(answers) >= 50:  # >= 50
             bot.register_next_step_handler(message, finish_registration)
         else:
             bot.register_next_step_handler(message, zero_question)
