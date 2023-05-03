@@ -3,3 +3,7 @@ errors.txt
 /.idea
 config.py
 /__pycache__
+test.py
+utils.py
+validators.py
+quizzer.py
