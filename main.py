@@ -45,19 +45,26 @@ def handle_start(message):
 def zero_question(message):
     if message.text == "/start":
         bot.register_next_step_handler(message, handle_start)
-    elif message.text == "Нет":
+    elif len(answers) > 0 and message.text not in {"Образ нечеткий и неяркий",
+                                                   "Четко улавливается в первую очередь форма и в какой-то степени цвет",
+                                                   "Четко улавливается в первую очередь цвет, а затем форма"}:
+        bot.send_message(message.chat.id, "Не понимаю. Попробуйте ещё раз", parse_mode='html', reply_markup=fou_markup)
+        bot.register_next_step_handler(message, zero_question)
+    elif message.text == "Нет" and len(answers) == 0:
         bot.stop_bot()
-    elif message.text != "Да":
+    elif message.text != "Да" and len(answers) == 0:
         bot.send_message(message.chat.id, "Не понимаю. Хотите начать?", parse_mode='html', reply_markup=binary_markup)
         bot.register_next_step_handler(message, zero_question)
     else:
         answers.append(message.text)
 
-        bot.send_photo(message.chat.id, open(f'images/{len(answers) // 5 + 1}.jpg', 'rb'),
+        tmp = open(f'images/{len(answers) // 5 + 1}.jpg', 'rb')
+        bot.send_photo(message.chat.id, tmp,
                        caption=f'{len(answers)}/50: Посмотрите внимательно на картинку-кляксу и подумайте, что вы видите: '
                                'кто или что это, где находится, что делает и т.д. '
                                'После того, как вы точно определитесь с наиболее близкой для себя '
-                               'ассоциацией, ответьте на последующие вопросы.', reply_markup=f_markup)
+                               'ассоциацией, ответьте на последующие вопросы.', reply_markup=z_markup)
+        tmp.close()
         bot.register_next_step_handler(message, first_question)
 
 

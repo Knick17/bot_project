@@ -1,7 +1,6 @@
 errors.txt
 /venv
 /.idea
-config.py
 /__pycache__
 test.py
 utils.py
