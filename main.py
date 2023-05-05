@@ -1,172 +1,171 @@
 import telebot
 import config
 from telebot import types
+import texts.consts as consts
 
 bot = telebot.TeleBot(config.TOKEN)
 
-tmp = open('texts/meeting.txt', 'r', encoding='utf-8')
+tmp = open(consts.MEET_PATH, 'r', encoding='utf-8')
 
 Meeting_text = tmp.read()
 
 tmp.close()
 
-# словарь для хранения информации о пользователях
 answers = []
 
 binary_markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-binary_markup.add(types.KeyboardButton("Да"), types.KeyboardButton("Нет"))
+binary_markup.add(types.KeyboardButton(consts.YES), types.KeyboardButton(consts.NO))
 
 z_markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-z_markup.add(types.KeyboardButton("Далее"))
+z_markup.add(types.KeyboardButton(consts.NEXT))
 
 f_markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-f_markup.add(types.KeyboardButton("Человеческие фигуры"), types.KeyboardButton("Животные"),
-               types.KeyboardButton("Неодушевленные предметы"), types.KeyboardButton("Что-либо фантастическое"))
+f_markup.add(types.KeyboardButton(consts.HUMAN_BODIES), types.KeyboardButton(consts.ANIMALS),
+             types.KeyboardButton(consts.OBJECTS), types.KeyboardButton(consts.FANTASTIC))
 
 t_markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-t_markup.add(types.KeyboardButton("Всей целой картинки"), types.KeyboardButton("Только отдельной ее части"))
+t_markup.add(types.KeyboardButton(consts.ALL_PIC), types.KeyboardButton(consts.PART_PIC))
 
 fou_markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-fou_markup.add(types.KeyboardButton("Образ нечеткий и неяркий"),
-                   types.KeyboardButton("Четко улавливается в первую очередь форма и в какой-то степени цвет"),
-                   types.KeyboardButton("Четко улавливается в первую очередь цвет, а затем форма"))
+fou_markup.add(types.KeyboardButton(consts.NCLEAR_NVIVD),
+               types.KeyboardButton(consts.FORM_COLOR),
+               types.KeyboardButton(consts.COLOR_FORM))
 
 
 # создаем обработчик для команды /start
-@bot.message_handler(commands=["start"])
+@bot.message_handler(commands=[consts.START])
 def handle_start(message):
     answers.clear()
     bot.send_message(message.chat.id, Meeting_text.format(message.from_user.first_name), parse_mode='html',
                      reply_markup=binary_markup)
     bot.register_next_step_handler(message, zero_question)
 
+
 # создаем обработчик для запроса роста пользователя
-@bot.message_handler(commands=['text'])
+@bot.message_handler(commands=[consts.TEXT])
 def zero_question(message):
-    if message.text == "/start":
+    if message.text == consts.START:
         bot.register_next_step_handler(message, handle_start)
-    elif len(answers) > 0 and message.text not in {"Образ нечеткий и неяркий",
-                                                   "Четко улавливается в первую очередь форма и в какой-то степени цвет",
-                                                   "Четко улавливается в первую очередь цвет, а затем форма"}:
-        bot.send_message(message.chat.id, "Не понимаю. Попробуйте ещё раз", parse_mode='html', reply_markup=fou_markup)
+    elif len(answers) > 0 and message.text not in {consts.NCLEAR_NVIVD,
+                                                   consts.FORM_COLOR,
+                                                   consts.COLOR_FORM}:
+        bot.send_message(message.chat.id, consts.NUNGERSTAND_TRY, parse_mode='html', reply_markup=fou_markup)
         bot.register_next_step_handler(message, zero_question)
-    elif message.text == "Нет" and len(answers) == 0:
+    elif message.text == consts.NO and len(answers) == 0:
         bot.stop_bot()
-    elif message.text != "Да" and len(answers) == 0:
-        bot.send_message(message.chat.id, "Не понимаю. Хотите начать?", parse_mode='html', reply_markup=binary_markup)
+    elif message.text != consts.YES and len(answers) == 0:
+        bot.send_message(message.chat.id, consts.NUNDERSTAND_START, parse_mode='html', reply_markup=binary_markup)
         bot.register_next_step_handler(message, zero_question)
     else:
         answers.append(message.text)
 
-        tmp = open(f'images/{len(answers) // 5 + 1}.jpg', 'rb')
+        tmp = open(consts.IM_PATH.format(len(answers) // 5 + 1), 'rb')
         bot.send_photo(message.chat.id, tmp,
-                       caption=f'{len(answers)}/50: Посмотрите внимательно на картинку-кляксу и подумайте, что вы видите: '
-                               'кто или что это, где находится, что делает и т.д. '
-                               'После того, как вы точно определитесь с наиболее близкой для себя '
-                               'ассоциацией, ответьте на последующие вопросы.', reply_markup=z_markup)
+                       caption=consts.ZERO_QUESTION.format(len(answers)), reply_markup=z_markup)
         tmp.close()
         bot.register_next_step_handler(message, first_question)
 
 
-@bot.message_handler(commands=['text'])
+@bot.message_handler(commands=[consts.TEXT])
 def first_question(message):
-    if message.text == "/start":
+    if message.text == consts.START:
         bot.register_next_step_handler(message, handle_start)
-    elif message.text != "Далее":
-        bot.send_message(message.chat.id, "Не понимаю. Попробуйте ещё раз", parse_mode='html', reply_markup=z_markup)
+    elif message.text != consts.NEXT:
+        bot.send_message(message.chat.id, consts.NUNGERSTAND_TRY, parse_mode='html', reply_markup=z_markup)
         bot.register_next_step_handler(message, first_question)
     else:
         chat_id = message.chat.id
         answers.append(message.text)
-        bot.send_message(chat_id, f'{len(answers)}/50: Что вы видели на картинке?', reply_markup=f_markup)
+        bot.send_message(chat_id, consts.FIRST_QUESTION.format(len(answers)), reply_markup=f_markup)
         bot.register_next_step_handler(message, second_question)
 
 
-@bot.message_handler(commands=['text'])
+@bot.message_handler(commands=[consts.TEXT])
 def second_question(message):
-    if message.text == "/start":
+    if message.text == consts.START:
         bot.register_next_step_handler(message, handle_start)
-    elif message.text not in {"Человеческие фигуры", "Животные", "Что-либо фантастическое", "Неодушевленные предметы"}:
-        bot.send_message(message.chat.id, "Не понимаю. Попробуйте ещё раз", parse_mode='html', reply_markup=f_markup)
+    elif message.text not in {consts.HUMAN_BODIES, consts.ANIMALS, consts.FANTASTIC, consts.OBJECTS}:
+        bot.send_message(message.chat.id, consts.NUNGERSTAND_TRY, parse_mode='html', reply_markup=f_markup)
         bot.register_next_step_handler(message, second_question)
     else:
         chat_id = message.chat.id
         answers.append(message.text)
-        bot.send_message(chat_id, f'{len(answers)}/50: То, что вы видели на картинке, находилось в движении?',
+        bot.send_message(chat_id, consts.SECOND_QUESTION.format(len(answers)),
                          reply_markup=binary_markup)
 
         bot.register_next_step_handler(message, third_question)
 
 
-@bot.message_handler(commands=['text'])
+@bot.message_handler(commands=[consts.TEXT])
 def third_question(message):
-    if message.text == "/start":
+    if message.text == consts.START:
         bot.register_next_step_handler(message, handle_start)
-    elif message.text not in {"Да", "Нет"}:
-        bot.send_message(message.chat.id, "Не понимаю. Попробуйте ещё раз", parse_mode='html', reply_markup=binary_markup)
+    elif message.text not in {consts.YES, consts.NO}:
+        bot.send_message(message.chat.id, consts.NUNGERSTAND_TRY, parse_mode='html', reply_markup=binary_markup)
         bot.register_next_step_handler(message, third_question)
     else:
 
         chat_id = message.chat.id
         answers.append(message.text)
 
-        bot.send_message(chat_id, f'{len(answers)}/50: Ваша ассоциация касается', reply_markup=t_markup)
+        bot.send_message(chat_id, consts.THIRD_QUESTION.format(len(answers)), reply_markup=t_markup)
         bot.register_next_step_handler(message, fourth_question)
 
 
-@bot.message_handler(commands=['text'])
+@bot.message_handler(commands=[consts.TEXT])
 def fourth_question(message):
-    if message.text == "/start":
+    if message.text == consts.START:
         bot.register_next_step_handler(message, handle_start)
-    elif message.text not in {"Всей целой картинки", "Только отдельной ее части"}:
-        bot.send_message(message.chat.id, "Не понимаю. Попробуйте ещё раз", parse_mode='html', reply_markup=t_markup)
+    elif message.text not in {consts.ALL_PIC, consts.PART_PIC}:
+        bot.send_message(message.chat.id, consts.NUNGERSTAND_TRY, parse_mode='html', reply_markup=t_markup)
         bot.register_next_step_handler(message, fourth_question)
     else:
         chat_id = message.chat.id
         answers.append(message.text)
 
-        bot.send_message(chat_id, f'{len(answers)}/50: Оцените, насколько получившийся образ оказался четким и ярким:',
+        bot.send_message(chat_id, consts.FORTH_QUESTION.format(len(answers)),
                          reply_markup=fou_markup)
         if len(answers) >= 50:  # >= 50
             bot.register_next_step_handler(message, finish_registration)
         else:
             bot.register_next_step_handler(message, zero_question)
 
+
 # создаем обработчик для завершения регистрации пользователя
 def finish_registration(message):
     chat_id = message.chat.id
     answers.append(message.text)
 
-    people = answers.count("Человеческие фигуры")
-    animals = answers.count("Животные")
-    subjects = answers.count("Неодушевленные предметы")
-    fant = answers.count("Что-либо фантастическое")
+    people = answers.count(consts.HUMAN_BODIES)
+    animals = answers.count(consts.ANIMALS)
+    subjects = answers.count(consts.OBJECTS)
+    fant = answers.count(consts.FANTASTIC)
 
-    not_move = answers.count("Нет")
+    not_move = answers.count(consts.NO)
 
-    part = answers.count("Только отдельной ее части")
+    part = answers.count(consts.PART_PIC)
 
-    pure = answers.count("Образ нечеткий и неяркий")
-    form = answers.count("Четко улавливается в первую очередь форма и в какой-то степени цвет")
+    pure = answers.count(consts.NCLEAR_NVIVD)
+    form = answers.count(consts.FORM_COLOR)
 
-    bot.send_message(chat_id, "Ваши ответы: \n", parse_mode='html', reply_markup=types.ReplyKeyboardRemove())
+    bot.send_message(chat_id, consts.UR_ANSWERS, parse_mode='html', reply_markup=types.ReplyKeyboardRemove())
 
-    tmp = open('texts/1.txt', 'r', encoding='utf-8')
+    tmp = open(consts.TXT_PATH.format(1), 'r', encoding='utf-8')
     bot.send_message(chat_id, tmp.read().format(people * 10, animals * 10, subjects * 10, fant * 10), parse_mode='html',
                      reply_markup=types.ReplyKeyboardRemove())
     tmp.close()
 
-    tmp = open('texts/3.txt', 'r', encoding='utf-8')
+    tmp = open(consts.TXT_PATH.format(3), 'r', encoding='utf-8')
     bot.send_message(chat_id, tmp.read().format((10 - not_move) * 10), parse_mode='html',
                      reply_markup=types.ReplyKeyboardRemove())
     tmp.close()
 
-    tmp = open('texts/4.txt', 'r', encoding='utf-8')
+    tmp = open(consts.TXT_PATH.format(4), 'r', encoding='utf-8')
     bot.send_message(chat_id, tmp.read().format((10 - part) * 10, part * 10), parse_mode='html',
                      reply_markup=types.ReplyKeyboardRemove())
     tmp.close()
 
-    tmp = open('texts/5.txt', 'r', encoding='utf-8')
+    tmp = open(consts.TXT_PATH.format(5), 'r', encoding='utf-8')
     bot.send_message(chat_id, tmp.read().format(pure * 10, form * 10, 100 - pure * 10 - form * 10), parse_mode='html',
                      reply_markup=types.ReplyKeyboardRemove())
     tmp.close()
