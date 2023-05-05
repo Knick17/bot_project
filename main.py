@@ -41,7 +41,6 @@ def handle_start(message):
     bot.register_next_step_handler(message, zero_question)
 
 
-# создаем обработчик для запроса роста пользователя
 @bot.message_handler(commands=[consts.TEXT])
 def zero_question(message):
     if message.text == consts.START:
