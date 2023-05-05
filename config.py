@@ -1,10 +1,9 @@
-TOKEN = '6238189255:AAH0eCuzqk8ppdloSNnKrctbOLvsOKBVoLs' #token
+TOKEN = ''  # insert your token here
 
 import importlib
 import os
 import sys
 from logging import getLogger
-
 
 logger = getLogger(__name__)
 
