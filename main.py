@@ -131,22 +131,20 @@ def fourth_question(message):
             bot.register_next_step_handler(message, zero_question)
 
 
+def generate(answers):
+    return (answers.count(consts.HUMAN_BODIES), answers.count(consts.ANIMALS),
+            answers.count(consts.OBJECTS), answers.count(consts.FANTASTIC),
+            answers.count(consts.NO),
+            answers.count(consts.PART_PIC),
+            answers.count(consts.NCLEAR_NVIVD),
+            answers.count(consts.FORM_COLOR))
+
+
 # создаем обработчик для завершения регистрации пользователя
 def finish_registration(message):
     chat_id = message.chat.id
     answers.append(message.text)
-
-    people = answers.count(consts.HUMAN_BODIES)
-    animals = answers.count(consts.ANIMALS)
-    subjects = answers.count(consts.OBJECTS)
-    fant = answers.count(consts.FANTASTIC)
-
-    not_move = answers.count(consts.NO)
-
-    part = answers.count(consts.PART_PIC)
-
-    pure = answers.count(consts.NCLEAR_NVIVD)
-    form = answers.count(consts.FORM_COLOR)
+    people, animals, subjects, fant, not_move, part, pure, form = generate(answers)
 
     bot.send_message(chat_id, consts.UR_ANSWERS, parse_mode='html', reply_markup=types.ReplyKeyboardRemove())
 
