@@ -1,6 +1,6 @@
 import telebot
+import telebot.types as types
 import config
-from telebot import types
 import texts.consts as consts
 
 bot = telebot.TeleBot(config.TOKEN)
