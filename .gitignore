@@ -1,0 +1,8 @@
+errors.txt
+/venv
+/.idea
+/__pycache__
+test.py
+utils.py
+validators.py
+quizzer.py
