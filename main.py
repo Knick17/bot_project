@@ -33,7 +33,7 @@ fou_markup.add(types.KeyboardButton(consts.NCLEAR_NVIVD),
 
 
 # создаем обработчик для команды /start
-@bot.message_handler(commands=[consts.START])
+@bot.message_handler(commands=['start'])
 def handle_start(message):
     answers.clear()
     bot.send_message(message.chat.id, Meeting_text.format(message.from_user.first_name), parse_mode='html',
@@ -41,7 +41,7 @@ def handle_start(message):
     bot.register_next_step_handler(message, zero_question)
 
 
-@bot.message_handler(commands=[consts.TEXT])
+@bot.message_handler(commands=['text'])
 def zero_question(message):
     if message.text == consts.START:
         bot.register_next_step_handler(message, handle_start)
@@ -65,7 +65,7 @@ def zero_question(message):
         bot.register_next_step_handler(message, first_question)
 
 
-@bot.message_handler(commands=[consts.TEXT])
+@bot.message_handler(commands=['text'])
 def first_question(message):
     if message.text == consts.START:
         bot.register_next_step_handler(message, handle_start)
@@ -79,7 +79,7 @@ def first_question(message):
         bot.register_next_step_handler(message, second_question)
 
 
-@bot.message_handler(commands=[consts.TEXT])
+@bot.message_handler(commands=['text'])
 def second_question(message):
     if message.text == consts.START:
         bot.register_next_step_handler(message, handle_start)
@@ -95,7 +95,7 @@ def second_question(message):
         bot.register_next_step_handler(message, third_question)
 
 
-@bot.message_handler(commands=[consts.TEXT])
+@bot.message_handler(commands=['text'])
 def third_question(message):
     if message.text == consts.START:
         bot.register_next_step_handler(message, handle_start)
@@ -111,7 +111,7 @@ def third_question(message):
         bot.register_next_step_handler(message, fourth_question)
 
 
-@bot.message_handler(commands=[consts.TEXT])
+@bot.message_handler(commands=['text'])
 def fourth_question(message):
     if message.text == consts.START:
         bot.register_next_step_handler(message, handle_start)
